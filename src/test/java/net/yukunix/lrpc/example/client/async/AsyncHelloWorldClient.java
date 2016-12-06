@@ -1,0 +1,93 @@
+package net.yukunix.lrpc.example.client.async;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import net.yukunix.lrpc.client.ClientProperties;
+import net.yukunix.lrpc.client.RPCClient;
+import net.yukunix.lrpc.client.RPCFuture;
+import net.yukunix.lrpc.client.proxy.IAsyncObjectProxy;
+import net.yukunix.lrpc.example.obj.IHelloWordObj;
+
+public class AsyncHelloWorldClient {
+	
+
+    public static void main(String[] args) throws Exception {
+
+    	final ClientProperties props = new ClientProperties() {
+			
+			@Override
+			public long syncCallTimeOut() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+			
+			@Override
+			public long reconnInterval() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+			
+			@Override
+			public int ioThreadNum() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+			
+			@Override
+			public long connectTimeout() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+			
+			@Override
+			public int asyncThreadPoolSize() {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+		};
+    	
+    	 final String host ="127.0.0.1";//192.168.0.51  127.0.0.1
+    	 final int port = 9090;
+
+         final AtomicLong totalTimeCosted = new AtomicLong(0);
+         int threadNum = 1;
+         final int requestNum = 100000;
+         Thread[] threads = new Thread[threadNum];
+         
+         for(int i =0;i< threadNum;i++){	
+        	 threads[i] = new Thread(new Runnable(){
+			 @Override
+			 public void run() {
+
+				 	 IAsyncObjectProxy client = RPCClient.proxyBuilder(IHelloWordObj.class).withServerNode(host, port).buildAsyncObjPrx(props);;
+					 long start = System.currentTimeMillis();
+					 for(int i=0;i<requestNum;i++){
+					 	RPCFuture result = client.call("hello", "hello world!"+i);
+					 	result.addCallback(new AsyncHelloWorldCallback("hello world!"+i));
+					  }
+					 totalTimeCosted.addAndGet(System.currentTimeMillis() - start);
+				}
+        	 });
+        	 threads[i].start();
+         }
+         
+         for(int i=0; i<threads.length;i++)
+        	 threads[i].join();
+
+         System.out.println("total time costed:"+totalTimeCosted.get()+"|req/s="+requestNum*threadNum/(double)(totalTimeCosted.get()/1000));
+
+		 IAsyncObjectProxy client = RPCClient.proxyBuilder(IHelloWordObj.class).withServerNode(host, port).buildAsyncObjPrx(props);
+	
+		 
+		 RPCFuture helloFuture = client.call("hello", "hello world!");
+		 RPCFuture testFuture = client.call("test", 1,"hello world!",2L);
+		 
+		 System.out.println(helloFuture.get(3000, TimeUnit.MILLISECONDS));
+		 System.out.println(testFuture.get(3000, TimeUnit.MILLISECONDS));
+		 
+		 
+//         RPCClient.getEventLoopGroup().shutdownGracefully();
+    }
+}
