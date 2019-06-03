@@ -4,7 +4,9 @@ public interface IHelloWordObj {
 	
 	String hello(String msg);
 
-	String test(Integer i, String s, Long l);
+	String test(int i, String s, long l);
+
+	String testB(Integer i, String s, Long l);
 	
 	Msg testMst(HellMsg msg);
 	

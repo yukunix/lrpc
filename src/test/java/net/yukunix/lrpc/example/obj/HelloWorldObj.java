@@ -10,9 +10,15 @@ public class HelloWorldObj implements IHelloWordObj {
 	}
 
 	@Override
-	public String test(Integer i, String s, Long l) {
+	public String test(int i, String s, long l) {
 		System.out.print("test:"+i+s+l);
 		return i+s+l;
+	}
+	
+	@Override
+	public String testB(Integer i, String s, Long l) {
+		System.out.print("testB:"+i+s+l+1);
+		return i+s+l+1;
 	}
 
 	@Override

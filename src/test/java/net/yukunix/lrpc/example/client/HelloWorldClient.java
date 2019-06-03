@@ -100,6 +100,11 @@ public class HelloWorldClient {
 		{
 			System.out.println("tesg Msg got error!");
 		}
+		
+		String ret = client.test(1, "2", 3);
+		System.out.println("test: " + ret);
+		ret = client.testB(new Integer(1), "2", new Long(3));
+		System.out.println("testB: " + ret);
 
 		RPCClient.getInstance(props).getEventLoopGroup().shutdownGracefully();
     }
